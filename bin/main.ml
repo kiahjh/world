@@ -104,17 +104,11 @@ let rec loop shader pos_x pos_y pos_z angle_x angle_y =
 
     begin_mode_3d camera;
 
-    (* x *)
-    draw_sphere (Vector3.create 50.0 0.0 0.0) 0.2 Color.red;
-    (* y *)
-    draw_sphere (Vector3.create 0.0 50.0 0.0) 0.2 Color.green;
-    (* z *)
-    draw_sphere (Vector3.create 0.0 0.0 50.0) 0.2 Color.blue;
-
-    (* water *)
-    draw_plane (Vector3.zero ()) (Vector2.create 100.0 100.0) Color.darkblue;
-
     Terrain.draw_terrain 100 0.5;
+
+    draw_plane (Vector3.zero ())
+      (Vector2.create 100.0 100.0)
+      (Color.create 0 84 178 200);
 
     end_mode_3d ();
 

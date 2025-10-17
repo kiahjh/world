@@ -34,6 +34,8 @@ let draw_terrain size resolution =
       let height = !vertices.(x).(z) in
       let color_1 =
         match height with
+        | n when n < -4.0 -> Color.create 210 192 132 255
+        | n when n < -1.5 -> Color.create 230 212 152 255
         | n when n < 1.0 -> Color.create 255 232 172 255
         | n when n < 4.5 -> Color.create 38 126 46 255
         | n when n < 6.0 -> Color.create 146 146 146 255
@@ -41,6 +43,8 @@ let draw_terrain size resolution =
       in
       let color_2 =
         match height with
+        | n when n < -4.0 -> Color.create 200 182 122 255
+        | n when n < -1.5 -> Color.create 220 202 142 255
         | n when n < 1.0 -> Color.create 245 212 162 255
         | n when n < 4.5 -> Color.create 28 116 36 255
         | n when n < 6.0 -> Color.create 136 136 136 255
