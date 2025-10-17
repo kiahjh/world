@@ -51,7 +51,7 @@ let rec loop shader pos_x pos_y pos_z angle_x angle_y =
     (* Handle WASD movement *)
     let base_speed = 0.1 in
     let move_speed =
-      if is_mouse_button_down MouseButton.Right then base_speed *. 5.0
+      if is_mouse_button_down MouseButton.Right then base_speed *. 10.0
       else base_speed
     in
     let new_pos_x, new_pos_y, new_pos_z =
@@ -100,7 +100,7 @@ let rec loop shader pos_x pos_y pos_z angle_x angle_y =
 
     (* Render to texture with the 3D scene *)
     begin_texture_mode target;
-    clear_background Color.raywhite;
+    clear_background (Color.create 83 166 255 255);
 
     begin_mode_3d camera;
 
@@ -122,7 +122,6 @@ let rec loop shader pos_x pos_y pos_z angle_x angle_y =
 
     (* Draw the render texture with shader applied *)
     begin_drawing ();
-    clear_background Color.raywhite;
 
     begin_shader_mode shader;
     draw_texture_rec
