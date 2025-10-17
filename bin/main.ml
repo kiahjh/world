@@ -1,69 +1,12 @@
-(* Simple noise function for terrain height *)
-let noise x z =
-  let open Float in
-  let sx = sin (x *. 0.5) in
-  let sz = sin (z *. 0.5) in
-  let cx = cos ((x *. 0.3) +. (z *. 0.2)) in
-  (sx *. sz *. 2.0) +. (cx *. 1.5)
-
-(* Generate terrain mesh *)
-let create_terrain_mesh grid_size =
-  let open Raylib in
-  let size = grid_size in
-  let vertex_count = size * size in
-  let triangle_count = (size - 1) * (size - 1) * 2 in
-
-  (* Create vertices *)
-  let vertices = ref [] in
-  for z = size - 1 downto 0 do
-    for x = size - 1 downto 0 do
-      let fx = float_of_int (x - (size / 2)) in
-      let fz = float_of_int (z - (size / 2)) in
-      let height = noise fx fz in
-      vertices := fz :: height :: fx :: !vertices
-    done
-  done;
-
-  (* Create normals (all pointing up for now) *)
-  let normals = ref [] in
-  for _ = 1 to vertex_count do
-    normals := 0.0 :: 1.0 :: 0.0 :: !normals
-  done;
-
-  (* Create triangle indices *)
-  let indices = ref [] in
-  for z = size - 2 downto 0 do
-    for x = size - 2 downto 0 do
-      let v0 = (z * size) + x in
-      let v1 = v0 + 1 in
-      let v2 = v0 + size in
-      let v3 = v2 + 1 in
-
-      (* First triangle *)
-      indices := v1 :: v2 :: v0 :: !indices;
-      (* Second triangle *)
-      indices := v3 :: v2 :: v1 :: !indices
-    done
-  done;
-
-  (* Create and upload mesh *)
-  let mesh = Mesh.create () in
-  Mesh.set_vertex_count mesh vertex_count;
-  Mesh.set_triangle_count mesh triangle_count;
-  Mesh.set_vertices mesh (CArray.of_list Ctypes.float !vertices);
-  Mesh.set_indices mesh
-    (CArray.of_list Ctypes.ushort (List.map Unsigned.UShort.of_int !indices));
-  Mesh.set_normals mesh (CArray.of_list Ctypes.float !normals);
-  upload_mesh (addr mesh) false;
-  mesh
-
 let setup () =
+  Raylib.set_trace_log_level Raylib.TraceLogLevel.Warning;
+  (* Suppress INFO messages *)
   Raylib.init_window 1600 1000 "raylib [core] example - 3d cube";
   Raylib.set_window_state [ Raylib.ConfigFlags.Window_resizable ];
   Raylib.set_target_fps 120;
   Raylib.set_exit_key Raylib.Key.Null (* Disable ESC from closing window *)
 
-let rec loop shader terrain_mesh pos_x pos_y pos_z angle_x angle_y =
+let rec loop shader pos_x pos_y pos_z angle_x angle_y =
   if Raylib.window_should_close () then (
     Raylib.unload_shader shader;
     Raylib.close_window ())
@@ -108,7 +51,7 @@ let rec loop shader terrain_mesh pos_x pos_y pos_z angle_x angle_y =
     (* Handle WASD movement *)
     let base_speed = 0.1 in
     let move_speed =
-      if is_mouse_button_down MouseButton.Right then base_speed *. 3.0
+      if is_mouse_button_down MouseButton.Right then base_speed *. 5.0
       else base_speed
     in
     let new_pos_x, new_pos_y, new_pos_z =
@@ -161,22 +104,18 @@ let rec loop shader terrain_mesh pos_x pos_y pos_z angle_x angle_y =
 
     begin_mode_3d camera;
 
-    (* terrain mesh *)
-    draw_mesh terrain_mesh (load_material_default ()) (Matrix.identity ());
-
-    (* cube *)
-    draw_cube (Vector3.create 0.0 0.0 0.0) 2.0 2.0 2.0 Color.red;
-    draw_cube_wires (Vector3.create 0.0 0.0 0.0) 2.0 2.0 2.0 Color.maroon;
-
     (* x *)
-    draw_sphere (Vector3.create 5.0 0.0 0.0) 0.2 Color.red;
+    draw_sphere (Vector3.create 50.0 0.0 0.0) 0.2 Color.red;
     (* y *)
-    draw_sphere (Vector3.create 0.0 5.0 0.0) 0.2 Color.green;
+    draw_sphere (Vector3.create 0.0 50.0 0.0) 0.2 Color.green;
     (* z *)
-    draw_sphere (Vector3.create 0.0 0.0 5.0) 0.2 Color.blue;
+    draw_sphere (Vector3.create 0.0 0.0 50.0) 0.2 Color.blue;
 
-    (* grid *)
-    draw_grid 50 1.0;
+    (* water *)
+    draw_plane (Vector3.zero ()) (Vector2.create 100.0 100.0) Color.blue;
+
+    Terrain.draw_terrain 50;
+
     end_mode_3d ();
 
     end_texture_mode ();
@@ -195,19 +134,20 @@ let rec loop shader terrain_mesh pos_x pos_y pos_z angle_x angle_y =
     end_shader_mode ();
 
     draw_fps 10 10;
-    draw_text "+x" 10 70 20 Color.red;
-    draw_text "+y" 40 70 20 Color.green;
-    draw_text "+z" 70 70 20 Color.blue;
+    draw_text "+x" 10 40 20 Color.red;
+    draw_text "+y" 40 40 20 Color.green;
+    draw_text "+z" 70 40 20 Color.blue;
+    draw_text (string_of_float pos_x) 10 70 20 Color.red;
+    draw_text (string_of_float pos_y) 10 100 20 Color.green;
+    draw_text (string_of_float pos_z) 10 130 20 Color.blue;
 
     unload_render_texture target;
     end_drawing ();
-    loop shader terrain_mesh new_pos_x new_pos_y new_pos_z new_angle_x
-      new_angle_y
+    loop shader new_pos_x new_pos_y new_pos_z new_angle_x new_angle_y
 
 let () =
   setup ();
   let shader = Raylib.load_shader "" "bin/shaders/pixelizer.fs" in
-  let terrain_mesh = create_terrain_mesh 10 in
   (* Starting position: 10 units back, 5 units up *)
   let initial_pos_x = 0.0 in
   let initial_pos_y = 5.0 in
@@ -215,5 +155,5 @@ let () =
   (* Starting look angles: looking slightly down and toward origin (180 degrees around) *)
   let initial_angle_x = -0.3 in
   let initial_angle_y = Float.pi in
-  loop shader terrain_mesh initial_pos_x initial_pos_y initial_pos_z
-    initial_angle_x initial_angle_y
+  loop shader initial_pos_x initial_pos_y initial_pos_z initial_angle_x
+    initial_angle_y
