@@ -99,20 +99,7 @@ let rec loop pos_x pos_y pos_z angle_x angle_y =
 
     begin_mode_3d camera;
 
-    Terrain.draw_terrain 100;
-
-    (* top side of water surface *)
-    draw_plane (Vector3.zero ())
-      (Vector2.create 100.0 100.0)
-      (Color.create 0 120 235 170);
-
-    (* bottom side of water surface *)
-    Rlgl.push_matrix ();
-    Rlgl.rotatef 180.0 0.0 0.0 0.1;
-    draw_plane (Vector3.zero ())
-      (Vector2.create 100.0 100.0)
-      (Color.create 0 120 235 170);
-    Rlgl.pop_matrix ();
+    Terrain.draw_terrain 100 0;
 
     end_mode_3d ();
 
