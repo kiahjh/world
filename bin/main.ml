@@ -3,7 +3,7 @@ let setup () =
   (* Suppress INFO messages *)
   Raylib.init_window 1600 1000 "raylib [core] example - 3d cube";
   Raylib.set_window_state [ Raylib.ConfigFlags.Window_resizable ];
-  Raylib.set_target_fps 120;
+  Raylib.set_target_fps 60;
   Raylib.set_exit_key Raylib.Key.Null (* Disable ESC from closing window *)
 
 let rec loop pos_x pos_y pos_z angle_x angle_y =
@@ -104,9 +104,9 @@ let rec loop pos_x pos_y pos_z angle_x angle_y =
     end_mode_3d ();
 
     draw_fps 10 10;
-    draw_text "+x" 10 40 20 Color.red;
-    draw_text "+y" 40 40 20 Color.green;
-    draw_text "+z" 70 40 20 Color.blue;
+    draw_text "x" 10 40 20 Color.red;
+    draw_text "y" 40 40 20 Color.green;
+    draw_text "z" 70 40 20 Color.blue;
     draw_text (string_of_float pos_x) 10 70 20 Color.red;
     draw_text (string_of_float pos_y) 10 100 20 Color.green;
     draw_text (string_of_float pos_z) 10 130 20 Color.blue;
