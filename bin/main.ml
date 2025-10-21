@@ -6,7 +6,7 @@ let setup () =
   Raylib.set_target_fps 60;
   Raylib.set_exit_key Raylib.Key.Null (* Disable ESC from closing window *)
 
-let rec loop pos_x pos_y pos_z angle_x angle_y =
+let rec loop terrain pos_x pos_y pos_z angle_x angle_y =
   if Raylib.window_should_close () then Raylib.close_window ()
   else
     let open Raylib in
@@ -99,10 +99,7 @@ let rec loop pos_x pos_y pos_z angle_x angle_y =
 
     begin_mode_3d camera;
 
-    Terrain.draw_terrain 100 0 pos_x pos_y pos_z;
-
-    draw_sphere (Vector3.create 55.0 0.0 0.0) 2.0 Color.red;
-    draw_sphere (Vector3.create 0.0 0.0 55.0) 2.0 Color.blue;
+    Terrain.draw_terrain 300 terrain (-5) 20 pos_x pos_y pos_z;
 
     end_mode_3d ();
 
@@ -115,15 +112,18 @@ let rec loop pos_x pos_y pos_z angle_x angle_y =
     draw_text (string_of_float pos_z) 10 130 20 Color.blue;
 
     end_drawing ();
-    loop new_pos_x new_pos_y new_pos_z new_angle_x new_angle_y
+    loop terrain new_pos_x new_pos_y new_pos_z new_angle_x new_angle_y
 
 let () =
   setup ();
   (* Starting position: 10 units back, 5 units up *)
-  let initial_pos_x = 0.0 in
-  let initial_pos_y = 5.0 in
-  let initial_pos_z = 10.0 in
+  let initial_pos_x = 250.0 in
+  let initial_pos_y = 100.0 in
+  let initial_pos_z = 0.0 in
   (* Starting look angles: looking slightly down and toward origin (180 degrees around) *)
-  let initial_angle_x = -0.3 in
-  let initial_angle_y = Float.pi in
-  loop initial_pos_x initial_pos_y initial_pos_z initial_angle_x initial_angle_y
+  let initial_angle_x = -0.5 in
+  let initial_angle_y = -.Float.pi /. 2.0 in
+
+  let terrain = Terrain.load_terrain 300 in
+  loop terrain initial_pos_x initial_pos_y initial_pos_z initial_angle_x
+    initial_angle_y

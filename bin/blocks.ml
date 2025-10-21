@@ -86,3 +86,36 @@ let draw_stone_block =
         (Vector3.create 0.0 0.5 0.0)
         (Vector2.create 1.0 1.0)
         (Color.create 100 100 100 255))
+
+let draw_water_block =
+  cube
+    ~north_face:(fun () ->
+      draw_plane
+        (Vector3.create 0.0 0.5 0.0)
+        (Vector2.create 1.0 1.0)
+        (Color.create 50 50 255 180))
+    ~east_face:(fun () ->
+      draw_plane
+        (Vector3.create 0.0 0.5 0.0)
+        (Vector2.create 1.0 1.0)
+        (Color.create 50 50 255 180))
+    ~south_face:(fun () ->
+      draw_plane
+        (Vector3.create 0.0 0.5 0.0)
+        (Vector2.create 1.0 1.0)
+        (Color.create 50 50 255 180))
+    ~west_face:(fun () ->
+      draw_plane
+        (Vector3.create 0.0 0.5 0.0)
+        (Vector2.create 1.0 1.0)
+        (Color.create 50 50 255 180))
+    ~top_face:(fun () ->
+      draw_plane
+        (Vector3.create 0.0 0.5 0.0)
+        (Vector2.create 1.0 1.0)
+        (Color.create 50 50 255 180))
+    ~bottom_face:(fun () ->
+      draw_plane
+        (Vector3.create 0.0 0.5 0.0)
+        (Vector2.create 1.0 1.0)
+        (Color.create 50 50 255 180))
