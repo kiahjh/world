@@ -6,15 +6,10 @@ let setup () =
   Raylib.set_target_fps 120;
   Raylib.set_exit_key Raylib.Key.Null (* Disable ESC from closing window *)
 
-let rec loop shader pos_x pos_y pos_z angle_x angle_y =
-  if Raylib.window_should_close () then (
-    Raylib.unload_shader shader;
-    Raylib.close_window ())
+let rec loop pos_x pos_y pos_z angle_x angle_y =
+  if Raylib.window_should_close () then Raylib.close_window ()
   else
     let open Raylib in
-    let screen_width = get_screen_width () in
-    let screen_height = get_screen_height () in
-    let target = load_render_texture screen_width screen_height in
     (* Unlock with ESC, lock cursor on click *)
     if is_key_pressed Key.Escape then enable_cursor ();
 
@@ -98,13 +93,13 @@ let rec loop shader pos_x pos_y pos_z angle_x angle_y =
         45.0 CameraProjection.Perspective
     in
 
-    (* Render to texture with the 3D scene *)
-    begin_texture_mode target;
+    (* Render the 3D scene *)
+    begin_drawing ();
     clear_background (Color.create 83 166 255 255);
 
     begin_mode_3d camera;
 
-    Terrain.draw_terrain 100 0.5;
+    Terrain.draw_terrain 100;
 
     (* top side of water surface *)
     draw_plane (Vector3.zero ())
@@ -121,20 +116,6 @@ let rec loop shader pos_x pos_y pos_z angle_x angle_y =
 
     end_mode_3d ();
 
-    end_texture_mode ();
-
-    (* Draw the render texture with shader applied *)
-    begin_drawing ();
-
-    begin_shader_mode shader;
-    draw_texture_rec
-      (RenderTexture.texture target)
-      (Rectangle.create 0.0 0.0
-         (float_of_int (RenderTexture.texture target |> Texture.width))
-         (float_of_int (-(RenderTexture.texture target |> Texture.height))))
-      (Vector2.create 0.0 0.0) Color.white;
-    end_shader_mode ();
-
     draw_fps 10 10;
     draw_text "+x" 10 40 20 Color.red;
     draw_text "+y" 40 40 20 Color.green;
@@ -143,13 +124,11 @@ let rec loop shader pos_x pos_y pos_z angle_x angle_y =
     draw_text (string_of_float pos_y) 10 100 20 Color.green;
     draw_text (string_of_float pos_z) 10 130 20 Color.blue;
 
-    unload_render_texture target;
     end_drawing ();
-    loop shader new_pos_x new_pos_y new_pos_z new_angle_x new_angle_y
+    loop new_pos_x new_pos_y new_pos_z new_angle_x new_angle_y
 
 let () =
   setup ();
-  let shader = Raylib.load_shader "" "bin/shaders/pixelizer.fs" in
   (* Starting position: 10 units back, 5 units up *)
   let initial_pos_x = 0.0 in
   let initial_pos_y = 5.0 in
@@ -157,5 +136,4 @@ let () =
   (* Starting look angles: looking slightly down and toward origin (180 degrees around) *)
   let initial_angle_x = -0.3 in
   let initial_angle_y = Float.pi in
-  loop shader initial_pos_x initial_pos_y initial_pos_z initial_angle_x
-    initial_angle_y
+  loop initial_pos_x initial_pos_y initial_pos_z initial_angle_x initial_angle_y
