@@ -99,7 +99,10 @@ let rec loop pos_x pos_y pos_z angle_x angle_y =
 
     begin_mode_3d camera;
 
-    Terrain.draw_terrain 100 0;
+    Terrain.draw_terrain 100 0 pos_x pos_y pos_z;
+
+    draw_sphere (Vector3.create 55.0 0.0 0.0) 2.0 Color.red;
+    draw_sphere (Vector3.create 0.0 0.0 55.0) 2.0 Color.blue;
 
     end_mode_3d ();
 
